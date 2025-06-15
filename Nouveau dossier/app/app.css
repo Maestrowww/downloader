@@ -52,10 +52,10 @@ TabView .tabview-item:selected {
   color: #007AFF;
 }
 
-/* Action bar styling */
+/* Hide action bar completely */
 ActionBar {
-  background-color: #000000;
-  color: #FFFFFF;
+  visibility: collapse;
+  height: 0;
 }
 
 /* Search bar styling */
@@ -103,4 +103,71 @@ ActionBar {
   vertical-align: middle;
   font-size: 24;
   margin-bottom: 8;
+}
+
+/* Progress bar styling */
+ProgressBar {
+  background-color: #E5E5EA;
+  color: #007AFF;
+}
+
+/* Navigation buttons */
+.nav-button {
+  background-color: transparent;
+  border-width: 0;
+  color: #FFFFFF;
+  font-size: 18;
+  padding: 8;
+  margin: 2;
+}
+
+.nav-button:disabled {
+  color: #8E8E93;
+}
+
+/* URL bar styling */
+.url-bar {
+  background-color: #2C2C2E;
+  color: #FFFFFF;
+  border-radius: 8;
+  padding: 8 12;
+  border-width: 0;
+}
+
+/* Quick action buttons */
+.quick-action {
+  background-color: #1C1C1E;
+  border-radius: 12;
+  padding: 16;
+  margin: 4;
+}
+
+/* History item styling */
+.history-item {
+  background-color: #1C1C1E;
+  border-radius: 10;
+  padding: 12;
+  margin-bottom: 8;
+}
+
+/* Responsive grid gaps */
+.gap-3 > * {
+  margin: 3;
+}
+
+/* Improved touch targets */
+Button, Label[tap] {
+  min-height: 44;
+  min-width: 44;
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.loading {
+  animation: pulse 1.5s ease-in-out infinite;
 }

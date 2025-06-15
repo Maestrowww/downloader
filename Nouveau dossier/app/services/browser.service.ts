@@ -36,25 +36,41 @@ export class BrowserService extends Observable {
   }
 
   navigateToUrl(url: string): void {
-    // Ajouter http:// si pas de protocole
-    if (!url.startsWith('http://') && !url.startsWith('https://')) {
-      if (url.includes('.')) {
-        url = 'https://' + url;
+    // Clean and validate URL
+    let cleanUrl = url.trim();
+    
+    // Add protocol if missing
+    if (!cleanUrl.startsWith('http://') && !cleanUrl.startsWith('https://')) {
+      if (cleanUrl.includes('.') && !cleanUrl.includes(' ')) {
+        cleanUrl = 'https://' + cleanUrl;
       } else {
-        // Recherche Google si pas d'URL valide
-        url = `https://www.google.com/search?q=${encodeURIComponent(url)}`;
+        // Google search for non-URL queries
+        cleanUrl = `https://www.google.com/search?q=${encodeURIComponent(cleanUrl)}`;
       }
     }
 
     this.setLoading(true);
-    this._currentState.currentUrl = url;
+    this._currentState.currentUrl = cleanUrl;
     
-    // Simuler le chargement
+    // Simulate loading with realistic timing
+    const loadingTime = Math.random() * 1000 + 500; // 500-1500ms
+    
+    // Update progress during loading
+    let progress = 0.1;
+    const progressInterval = setInterval(() => {
+      progress += Math.random() * 0.2;
+      if (progress < 0.9) {
+        this._currentState.progress = progress;
+        this.notifyPropertyChange('currentState', this._currentState);
+      }
+    }, 100);
+
     setTimeout(() => {
-      this.addToHistory(url, this.getTitleFromUrl(url));
+      clearInterval(progressInterval);
+      this.addToHistory(cleanUrl, this.getTitleFromUrl(cleanUrl));
       this.setLoading(false);
       this.updateNavigationState();
-    }, 1000);
+    }, loadingTime);
 
     this.notifyPropertyChange('currentState', this._currentState);
   }
@@ -87,7 +103,19 @@ export class BrowserService extends Observable {
 
   refresh(): void {
     this.setLoading(true);
+    
+    // Simulate refresh with progress
+    let progress = 0.2;
+    const progressInterval = setInterval(() => {
+      progress += Math.random() * 0.3;
+      if (progress < 0.9) {
+        this._currentState.progress = progress;
+        this.notifyPropertyChange('currentState', this._currentState);
+      }
+    }, 80);
+
     setTimeout(() => {
+      clearInterval(progressInterval);
       this.setLoading(false);
     }, 800);
   }
@@ -101,7 +129,7 @@ export class BrowserService extends Observable {
   }
 
   private addToHistory(url: string, title: string): void {
-    // Supprimer les éléments après l'index actuel si on navigue depuis l'historique
+    // Remove forward history if navigating from middle of history
     if (this._currentHistoryIndex < this._history.length - 1) {
       this._history = this._history.slice(0, this._currentHistoryIndex + 1);
     }
@@ -115,7 +143,7 @@ export class BrowserService extends Observable {
     this._history.push(historyItem);
     this._currentHistoryIndex = this._history.length - 1;
     
-    // Limiter l'historique à 100 éléments
+    // Limit history to 100 items
     if (this._history.length > 100) {
       this._history.shift();
       this._currentHistoryIndex--;
@@ -129,13 +157,39 @@ export class BrowserService extends Observable {
 
   private setLoading(loading: boolean): void {
     this._currentState.isLoading = loading;
-    this._currentState.progress = loading ? 0.3 : 1;
+    this._currentState.progress = loading ? 0.1 : 1;
+    
+    if (!loading) {
+      // Small delay to show 100% progress
+      setTimeout(() => {
+        this._currentState.progress = 0;
+        this.notifyPropertyChange('currentState', this._currentState);
+      }, 200);
+    }
+    
     this.notifyPropertyChange('currentState', this._currentState);
   }
 
   private getTitleFromUrl(url: string): string {
     try {
-      const domain = new URL(url).hostname.replace('www.', '');
+      const urlObj = new URL(url);
+      const domain = urlObj.hostname.replace('www.', '');
+      
+      // Special cases for common sites
+      if (domain.includes('google.com')) {
+        if (url.includes('/search')) {
+          return 'Recherche Google';
+        }
+        return 'Google';
+      } else if (domain.includes('youtube.com')) {
+        return 'YouTube';
+      } else if (domain.includes('facebook.com')) {
+        return 'Facebook';
+      } else if (domain.includes('twitter.com')) {
+        return 'Twitter';
+      }
+      
+      // Capitalize first letter of domain
       return domain.charAt(0).toUpperCase() + domain.slice(1);
     } catch {
       return 'Page web';

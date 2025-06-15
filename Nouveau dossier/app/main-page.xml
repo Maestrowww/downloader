@@ -1,12 +1,5 @@
 <Page xmlns="http://schemas.nativescript.org/tns.xsd" navigatingTo="navigatingTo" class="bg-black">
-    <ActionBar title="" class="bg-black text-white border-none">
-        <Label text="11:12" class="text-white text-lg font-semibold" horizontalAlignment="center" />
-        <StackLayout orientation="horizontal" horizontalAlignment="right" class="mr-4">
-            <Label text="•••" class="text-white mr-2" />
-            <Label text="📶" class="text-white mr-2" />
-            <Label text="📱" class="text-white mr-2" />
-            <Label text="🔋74" class="text-white" />
-        </StackLayout>
+    <ActionBar title="" class="bg-black text-white border-none" visibility="collapsed">
     </ActionBar>
 
     <TabView selectedIndex="{{ selectedTabIndex }}" selectedIndexChanged="onTabSelected" class="bg-black">
@@ -21,7 +14,7 @@
                         <Button text="←" class="text-white bg-transparent border-none text-xl mr-2" tap="onBackButtonTap" isEnabled="{{ canGoBack }}" />
                         <Button text="→" class="text-white bg-transparent border-none text-xl mr-2" tap="onForwardButtonTap" isEnabled="{{ canGoForward }}" />
                         <Button text="↻" class="text-white bg-transparent border-none text-xl mr-2" tap="onRefreshButtonTap" />
-                        <Label text="{{ pageTitle }}" class="text-white flex-1 text-center" />
+                        <TextField text="{{ currentUrl }}" class="text-white bg-gray-800 rounded-lg flex-1 mx-2 px-3" hint="Rechercher ou saisir une URL" returnKeyType="go" returnPress="onUrlBarSubmit" />
                         <Button text="📤" class="text-white bg-transparent border-none text-xl ml-2" tap="onShareButtonTap" />
                         <Button text="⭐" class="text-white bg-transparent border-none text-xl ml-2" tap="onBookmarkButtonTap" />
                     </StackLayout>
@@ -32,15 +25,80 @@
                         <!-- Web View (when navigating) -->
                         <StackLayout visibility="{{ showWebView ? 'visible' : 'collapsed' }}" class="bg-white flex-1">
                             <!-- Progress Bar -->
-                            <ProgressBar value="{{ browserState.progress }}" maxValue="1" class="bg-blue-400" visibility="{{ isLoading ? 'visible' : 'collapsed' }}" />
+                            <ProgressBar value="{{ browserState.progress }}" maxValue="1" class="bg-blue-400 h-1" visibility="{{ isLoading ? 'visible' : 'collapsed' }}" />
                             
                             <!-- Simulated Web Content -->
                             <ScrollView class="flex-1">
                                 <StackLayout class="p-4">
                                     <Label text="{{ pageTitle }}" class="text-black text-2xl font-bold mb-4" />
-                                    <Label text="{{ currentUrl }}" class="text-blue-600 text-sm mb-4" />
-                                    <Label text="Contenu de la page web simulé..." class="text-gray-800 text-base mb-4" />
-                                    <Label text="Cette application simule la navigation web. Dans une vraie application, vous utiliseriez le composant WebView de NativeScript pour afficher le contenu web réel." class="text-gray-600 text-sm" textWrap="true" />
+                                    <Label text="{{ currentUrl }}" class="text-blue-600 text-sm mb-4" textWrap="true" />
+                                    
+                                    <!-- Simulated web content based on URL -->
+                                    <StackLayout visibility="{{ isGoogleSearch ? 'visible' : 'collapsed' }}">
+                                        <Label text="Résultats de recherche Google" class="text-gray-800 text-lg font-semibold mb-4" />
+                                        <StackLayout class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                            <Label text="Résultat 1 - Site web exemple" class="text-blue-600 text-base font-semibold mb-1" />
+                                            <Label text="Description du premier résultat de recherche..." class="text-gray-700 text-sm" textWrap="true" />
+                                        </StackLayout>
+                                        <StackLayout class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                            <Label text="Résultat 2 - Autre site web" class="text-blue-600 text-base font-semibold mb-1" />
+                                            <Label text="Description du deuxième résultat de recherche..." class="text-gray-700 text-sm" textWrap="true" />
+                                        </StackLayout>
+                                    </StackLayout>
+                                    
+                                    <StackLayout visibility="{{ isYouTube ? 'visible' : 'collapsed' }}">
+                                        <Label text="🎥 YouTube" class="text-red-600 text-2xl font-bold mb-4" />
+                                        <Label text="Vidéos recommandées" class="text-gray-800 text-lg font-semibold mb-4" />
+                                        <StackLayout class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                            <Label text="📹 Vidéo populaire 1" class="text-black text-base font-semibold mb-1" />
+                                            <Label text="1.2M vues • il y a 2 jours" class="text-gray-600 text-sm" />
+                                        </StackLayout>
+                                        <StackLayout class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                            <Label text="📹 Vidéo populaire 2" class="text-black text-base font-semibold mb-1" />
+                                            <Label text="856K vues • il y a 1 semaine" class="text-gray-600 text-sm" />
+                                        </StackLayout>
+                                    </StackLayout>
+                                    
+                                    <StackLayout visibility="{{ isFacebook ? 'visible' : 'collapsed' }}">
+                                        <Label text="📘 Facebook" class="text-blue-600 text-2xl font-bold mb-4" />
+                                        <Label text="Fil d'actualité" class="text-gray-800 text-lg font-semibold mb-4" />
+                                        <StackLayout class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                            <Label text="👤 Ami 1 a publié une photo" class="text-black text-base font-semibold mb-1" />
+                                            <Label text="Il y a 3 heures" class="text-gray-600 text-sm" />
+                                        </StackLayout>
+                                        <StackLayout class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                            <Label text="👤 Ami 2 a partagé un article" class="text-black text-base font-semibold mb-1" />
+                                            <Label text="Il y a 5 heures" class="text-gray-600 text-sm" />
+                                        </StackLayout>
+                                    </StackLayout>
+                                    
+                                    <StackLayout visibility="{{ isTwitter ? 'visible' : 'collapsed' }}">
+                                        <Label text="🐦 Twitter" class="text-blue-400 text-2xl font-bold mb-4" />
+                                        <Label text="Timeline" class="text-gray-800 text-lg font-semibold mb-4" />
+                                        <StackLayout class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                            <Label text="@utilisateur1" class="text-blue-400 text-base font-semibold mb-1" />
+                                            <Label text="Voici un tweet intéressant sur la technologie..." class="text-gray-700 text-sm" textWrap="true" />
+                                            <Label text="Il y a 1 heure" class="text-gray-500 text-xs mt-1" />
+                                        </StackLayout>
+                                        <StackLayout class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                            <Label text="@utilisateur2" class="text-blue-400 text-base font-semibold mb-1" />
+                                            <Label text="Partage d'une actualité importante..." class="text-gray-700 text-sm" textWrap="true" />
+                                            <Label text="Il y a 2 heures" class="text-gray-500 text-xs mt-1" />
+                                        </StackLayout>
+                                    </StackLayout>
+                                    
+                                    <StackLayout visibility="{{ isGenericSite ? 'visible' : 'collapsed' }}">
+                                        <Label text="Contenu de la page web" class="text-gray-800 text-lg font-semibold mb-4" />
+                                        <Label text="Cette application simule la navigation web. Le contenu affiché est une simulation basée sur l'URL visitée." class="text-gray-600 text-sm mb-4" textWrap="true" />
+                                        <StackLayout class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                            <Label text="Article principal" class="text-black text-base font-semibold mb-2" />
+                                            <Label text="Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua." class="text-gray-700 text-sm" textWrap="true" />
+                                        </StackLayout>
+                                        <StackLayout class="mb-4 p-3 bg-gray-100 rounded-lg">
+                                            <Label text="Section secondaire" class="text-black text-base font-semibold mb-2" />
+                                            <Label text="Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat." class="text-gray-700 text-sm" textWrap="true" />
+                                        </StackLayout>
+                                    </StackLayout>
                                 </StackLayout>
                             </ScrollView>
                         </StackLayout>
@@ -50,14 +108,14 @@
                             <StackLayout class="p-4">
                                 <!-- Search Bar -->
                                 <StackLayout class="bg-gray-800 rounded-lg p-3 mb-6" tap="onSearchBarTap">
-                                    <TextField text="{{ searchText }}" hint="{{ searchPlaceholder }}" class="text-white bg-transparent border-none" returnKeyType="search" returnPress="onSearchSubmit" />
+                                    <TextField text="{{ searchText }}" hint="Rechercher ou saisir une URL" class="text-white bg-transparent border-none" returnKeyType="search" returnPress="onSearchSubmit" />
                                 </StackLayout>
 
                                 <!-- Top Sites -->
                                 <StackLayout class="mb-6">
                                     <StackLayout orientation="horizontal" class="mb-4">
-                                        <Label text="Top Sites" class="text-white text-2xl font-bold flex-1" />
-                                        <Label text="Hide" class="text-blue-400 text-base" />
+                                        <Label text="Sites favoris" class="text-white text-2xl font-bold flex-1" />
+                                        <Label text="Modifier" class="text-blue-400 text-base" tap="onEditTopSites" />
                                     </StackLayout>
                                     
                                     <GridLayout columns="*, *, *, *" rows="auto" class="mb-4">
@@ -80,10 +138,45 @@
                                     </GridLayout>
                                 </StackLayout>
 
-                                <!-- Recent History (if any) -->
-                                <StackLayout class="mb-6" visibility="{{ browserService.history.length > 0 ? 'visible' : 'collapsed' }}">
+                                <!-- Recent History -->
+                                <StackLayout class="mb-6" visibility="{{ hasHistory ? 'visible' : 'collapsed' }}">
                                     <Label text="Récemment visité" class="text-white text-xl font-bold mb-4" />
-                                    <!-- History items would be listed here -->
+                                    <Repeater items="{{ recentHistory }}">
+                                        <Repeater.itemTemplate>
+                                            <StackLayout class="bg-gray-800 rounded-lg p-3 mb-2" tap="onHistoryItemTap">
+                                                <StackLayout orientation="horizontal">
+                                                    <Label text="🌐" class="text-2xl mr-3" />
+                                                    <StackLayout class="flex-1">
+                                                        <Label text="{{ title }}" class="text-white text-base font-semibold mb-1" />
+                                                        <Label text="{{ url }}" class="text-gray-400 text-sm" />
+                                                    </StackLayout>
+                                                </StackLayout>
+                                            </StackLayout>
+                                        </Repeater.itemTemplate>
+                                    </Repeater>
+                                </StackLayout>
+
+                                <!-- Quick Actions -->
+                                <StackLayout class="mb-6">
+                                    <Label text="Actions rapides" class="text-white text-xl font-bold mb-4" />
+                                    <GridLayout columns="*, *" rows="auto, auto" class="gap-3">
+                                        <StackLayout col="0" row="0" class="bg-gray-800 rounded-lg p-4 text-center" tap="onBookmarksAction">
+                                            <Label text="⭐" class="text-3xl mb-2" />
+                                            <Label text="Favoris" class="text-white text-sm" />
+                                        </StackLayout>
+                                        <StackLayout col="1" row="0" class="bg-gray-800 rounded-lg p-4 text-center" tap="onHistoryAction">
+                                            <Label text="📚" class="text-3xl mb-2" />
+                                            <Label text="Historique" class="text-white text-sm" />
+                                        </StackLayout>
+                                        <StackLayout col="0" row="1" class="bg-gray-800 rounded-lg p-4 text-center" tap="onPrivateBrowsingAction">
+                                            <Label text="🔒" class="text-3xl mb-2" />
+                                            <Label text="Navigation privée" class="text-white text-sm" />
+                                        </StackLayout>
+                                        <StackLayout col="1" row="1" class="bg-gray-800 rounded-lg p-4 text-center" tap="onSettingsAction">
+                                            <Label text="⚙️" class="text-3xl mb-2" />
+                                            <Label text="Paramètres" class="text-white text-sm" />
+                                        </StackLayout>
+                                    </GridLayout>
                                 </StackLayout>
                             </StackLayout>
                         </ScrollView>
@@ -99,26 +192,42 @@
                     <!-- Header -->
                     <StackLayout class="p-4">
                         <StackLayout orientation="horizontal" class="mb-4">
-                            <Label text="➕" class="text-blue-400 text-2xl mr-4" />
+                            <Label text="➕" class="text-blue-400 text-2xl mr-4" tap="onAddDownload" />
                             <Label text="Téléchargements" class="text-white text-3xl font-bold flex-1" />
-                            <Label text="Edit" class="text-blue-400 text-lg" />
+                            <Label text="Modifier" class="text-blue-400 text-lg" tap="onEditDownloads" />
                         </StackLayout>
 
                         <!-- Search Bar -->
                         <StackLayout class="bg-gray-800 rounded-lg p-3 mb-6">
-                            <Label text="🔍 Chercher dans les fichiers téléchargés" class="text-gray-400 text-base" />
+                            <TextField hint="Chercher dans les fichiers téléchargés" class="text-white bg-transparent border-none" />
                         </StackLayout>
                     </StackLayout>
 
                     <!-- Empty State -->
                     <StackLayout class="flex-1 justify-center items-center p-8" visibility="{{ hasDownloads ? 'collapsed' : 'visible' }}">
-                        <Label text="Aucun contenu" class="text-white text-xl text-center" />
+                        <Label text="📥" class="text-6xl mb-4" />
+                        <Label text="Aucun téléchargement" class="text-white text-xl text-center mb-2" />
+                        <Label text="Les fichiers téléchargés apparaîtront ici" class="text-gray-400 text-sm text-center" />
                     </StackLayout>
 
                     <!-- Downloads List (when there are downloads) -->
                     <ScrollView visibility="{{ hasDownloads ? 'visible' : 'collapsed' }}">
                         <StackLayout class="p-4">
-                            <!-- Downloads would be listed here -->
+                            <Repeater items="{{ downloads }}">
+                                <Repeater.itemTemplate>
+                                    <StackLayout class="bg-gray-800 rounded-lg p-4 mb-3">
+                                        <StackLayout orientation="horizontal">
+                                            <Label text="📄" class="text-3xl mr-3" />
+                                            <StackLayout class="flex-1">
+                                                <Label text="{{ name }}" class="text-white text-base font-semibold mb-1" />
+                                                <Label text="{{ size }}" class="text-gray-400 text-sm" />
+                                                <ProgressBar value="{{ progress }}" maxValue="100" class="mt-2" visibility="{{ status === 'downloading' ? 'visible' : 'collapsed' }}" />
+                                            </StackLayout>
+                                            <Label text="•••" class="text-gray-400 text-lg" />
+                                        </StackLayout>
+                                    </StackLayout>
+                                </Repeater.itemTemplate>
+                            </Repeater>
                         </StackLayout>
                     </ScrollView>
                 </StackLayout>
@@ -133,35 +242,39 @@
                     <StackLayout class="p-4">
                         <StackLayout orientation="horizontal" class="mb-4">
                             <Label text="Fichiers" class="text-white text-3xl font-bold flex-1" />
-                            <Label text="Edit" class="text-blue-400 text-lg" />
+                            <Label text="Modifier" class="text-blue-400 text-lg" tap="onEditFiles" />
                         </StackLayout>
 
                         <!-- Search Bar -->
                         <StackLayout class="bg-gray-800 rounded-lg p-3 mb-4">
-                            <Label text="🔍 Chercher dans ce dossier" class="text-gray-400 text-base" />
+                            <TextField hint="Chercher dans ce dossier" class="text-white bg-transparent border-none" />
                         </StackLayout>
 
                         <!-- Action Buttons -->
                         <StackLayout orientation="horizontal" class="mb-4">
-                            <Label text="➕" class="text-blue-400 text-2xl mr-4" />
-                            <Label text="📁➕" class="text-blue-400 text-2xl mr-4" />
-                            <Label text="Nom ⌄" class="text-blue-400 text-base flex-1 text-right" />
+                            <Label text="➕" class="text-blue-400 text-2xl mr-4" tap="onAddFile" />
+                            <Label text="📁➕" class="text-blue-400 text-2xl mr-4" tap="onAddFolder" />
+                            <Label text="Nom ⌄" class="text-blue-400 text-base flex-1 text-right" tap="onSortFiles" />
                         </StackLayout>
                     </StackLayout>
 
                     <!-- Files List -->
                     <ScrollView>
                         <StackLayout class="px-4">
-                            <StackLayout class="bg-gray-800 rounded-lg p-4 mb-4" tap="onFileTap" tag="0">
-                                <StackLayout orientation="horizontal">
-                                    <Label text="📁" class="text-4xl mr-4 bg-gray-600 rounded-lg p-2" />
-                                    <StackLayout class="flex-1">
-                                        <Label text="Rap Us" class="text-white text-lg font-semibold mb-1" />
-                                        <Label text="223,2 MB - 20 items" class="text-gray-400 text-sm" />
+                            <Repeater items="{{ files }}">
+                                <Repeater.itemTemplate>
+                                    <StackLayout class="bg-gray-800 rounded-lg p-4 mb-4" tap="onFileTap">
+                                        <StackLayout orientation="horizontal">
+                                            <Label text="{{ icon }}" class="text-4xl mr-4 bg-gray-600 rounded-lg p-2" />
+                                            <StackLayout class="flex-1">
+                                                <Label text="{{ name }}" class="text-white text-lg font-semibold mb-1" />
+                                                <Label text="{{ size }}{{ itemCount ? ' - ' + itemCount + ' items' : '' }}" class="text-gray-400 text-sm" />
+                                            </StackLayout>
+                                            <Label text="•••" class="text-gray-400 text-lg" />
+                                        </StackLayout>
                                     </StackLayout>
-                                    <Label text="•••" class="text-gray-400 text-lg" />
-                                </StackLayout>
-                            </StackLayout>
+                                </Repeater.itemTemplate>
+                            </Repeater>
 
                             <Label text="{{ itemCount }} - {{ freeSpace }}" class="text-gray-400 text-sm mb-4" />
                         </StackLayout>
@@ -171,14 +284,14 @@
         </TabViewItem>
 
         <!-- More Tab -->
-        <TabViewItem title="Informations" class="bg-black">
+        <TabViewItem title="Plus" class="bg-black">
             <TabViewItem.view>
                 <ScrollView class="bg-black">
                     <StackLayout class="p-4">
                         <!-- Header -->
                         <StackLayout orientation="horizontal" class="mb-6">
                             <Label text="Plus" class="text-white text-3xl font-bold flex-1 text-center" />
-                            <Label text="Edit" class="text-blue-400 text-lg" />
+                            <Label text="Modifier" class="text-blue-400 text-lg" />
                         </StackLayout>
 
                         <!-- Premium Section -->
@@ -186,7 +299,7 @@
                             <Label text="PREMIUM" class="text-gray-400 text-sm mb-3 font-semibold" />
                             <StackLayout class="bg-gray-800 rounded-lg p-4 mb-4" tap="onRemoveAds">
                                 <StackLayout orientation="horizontal">
-                                    <Label text="Remove Ads" class="text-blue-400 text-lg flex-1" />
+                                    <Label text="Supprimer les publicités" class="text-blue-400 text-lg flex-1" />
                                     <Label text=">" class="text-gray-400 text-lg" />
                                 </StackLayout>
                             </StackLayout>

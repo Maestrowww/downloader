@@ -1,13 +1,14 @@
 import { Observable } from '@nativescript/core';
 import { DataService } from '../services/data.service';
 import { BrowserService } from '../services/browser.service';
-import { BrowserState } from '../models/browser-state';
+import { BrowserState, HistoryItem } from '../models/browser-state';
 
 export class MainViewModel extends Observable {
   private _selectedTabIndex: number = 0;
   private _isDarkMode: boolean = true;
   private _searchText: string = '';
   private _showWebView: boolean = false;
+  private _currentUrl: string = '';
   private dataService: DataService;
   private browserService: BrowserService;
 
@@ -25,6 +26,7 @@ export class MainViewModel extends Observable {
         this.notifyPropertyChange('canGoBack', this.canGoBack);
         this.notifyPropertyChange('canGoForward', this.canGoForward);
         this.notifyPropertyChange('isLoading', this.isLoading);
+        this.updateContentVisibility();
       }
     });
   }
@@ -75,6 +77,17 @@ export class MainViewModel extends Observable {
     }
   }
 
+  get currentUrl(): string {
+    return this.browserService.currentState.currentUrl || this._currentUrl;
+  }
+
+  set currentUrl(value: string) {
+    if (this._currentUrl !== value) {
+      this._currentUrl = value;
+      this.notifyPropertyChange('currentUrl', value);
+    }
+  }
+
   get onLabelBackgroundColor(): string {
     return this._isDarkMode ? '#007AFF' : 'transparent';
   }
@@ -99,6 +112,14 @@ export class MainViewModel extends Observable {
     return this.downloads.length > 0;
   }
 
+  get hasHistory(): boolean {
+    return this.browserService.history.length > 0;
+  }
+
+  get recentHistory(): HistoryItem[] {
+    return this.browserService.history.slice(-5).reverse(); // Last 5 items, most recent first
+  }
+
   get freeSpace(): string {
     return '16,63 GB d\'espace libre';
   }
@@ -111,10 +132,6 @@ export class MainViewModel extends Observable {
   // Propriétés du navigateur
   get browserState(): BrowserState {
     return this.browserService.currentState;
-  }
-
-  get currentUrl(): string {
-    return this.browserService.currentState.currentUrl || '';
   }
 
   get pageTitle(): string {
@@ -133,8 +150,34 @@ export class MainViewModel extends Observable {
     return this.browserService.currentState.isLoading;
   }
 
-  get searchPlaceholder(): string {
-    return this.showWebView ? this.currentUrl || 'Rechercher ou saisir un site' : 'Rechercher ou saisir un site';
+  // Content visibility properties
+  get isGoogleSearch(): boolean {
+    const url = this.currentUrl.toLowerCase();
+    return url.includes('google.com/search') || url.includes('google.com') && this.searchText;
+  }
+
+  get isYouTube(): boolean {
+    return this.currentUrl.toLowerCase().includes('youtube.com');
+  }
+
+  get isFacebook(): boolean {
+    return this.currentUrl.toLowerCase().includes('facebook.com');
+  }
+
+  get isTwitter(): boolean {
+    return this.currentUrl.toLowerCase().includes('twitter.com');
+  }
+
+  get isGenericSite(): boolean {
+    return !this.isGoogleSearch && !this.isYouTube && !this.isFacebook && !this.isTwitter && this.currentUrl.length > 0;
+  }
+
+  private updateContentVisibility(): void {
+    this.notifyPropertyChange('isGoogleSearch', this.isGoogleSearch);
+    this.notifyPropertyChange('isYouTube', this.isYouTube);
+    this.notifyPropertyChange('isFacebook', this.isFacebook);
+    this.notifyPropertyChange('isTwitter', this.isTwitter);
+    this.notifyPropertyChange('isGenericSite', this.isGenericSite);
   }
 
   // Méthodes d'événements
@@ -148,7 +191,6 @@ export class MainViewModel extends Observable {
 
   onSearchBarTap() {
     console.log('Search bar tapped');
-    // Ici on pourrait ouvrir un clavier virtuel ou une interface de saisie
   }
 
   onSearchSubmit() {
@@ -159,12 +201,26 @@ export class MainViewModel extends Observable {
     }
   }
 
+  onUrlBarSubmit() {
+    if (this.currentUrl.trim()) {
+      this.browserService.navigateToUrl(this.currentUrl.trim());
+    }
+  }
+
   onTopSiteTap(args: any) {
-    const index = args.object.tag || 0;
+    const index = parseInt(args.object.tag) || 0;
     const site = this.topSites[index];
     if (site) {
       console.log(`Navigating to: ${site.name} - ${site.url}`);
       this.browserService.navigateToTopSite(site);
+      this.showWebView = true;
+    }
+  }
+
+  onHistoryItemTap(args: any) {
+    const item = args.bindingContext as HistoryItem;
+    if (item) {
+      this.browserService.navigateToUrl(item.url);
       this.showWebView = true;
     }
   }
@@ -197,6 +253,53 @@ export class MainViewModel extends Observable {
     // Implémenter les favoris
   }
 
+  // Quick actions
+  onBookmarksAction() {
+    console.log('Bookmarks action tapped');
+  }
+
+  onHistoryAction() {
+    console.log('History action tapped');
+  }
+
+  onPrivateBrowsingAction() {
+    console.log('Private browsing action tapped');
+  }
+
+  onSettingsAction() {
+    console.log('Settings action tapped');
+  }
+
+  onEditTopSites() {
+    console.log('Edit top sites tapped');
+  }
+
+  // Downloads actions
+  onAddDownload() {
+    console.log('Add download tapped');
+  }
+
+  onEditDownloads() {
+    console.log('Edit downloads tapped');
+  }
+
+  // Files actions
+  onAddFile() {
+    console.log('Add file tapped');
+  }
+
+  onAddFolder() {
+    console.log('Add folder tapped');
+  }
+
+  onSortFiles() {
+    console.log('Sort files tapped');
+  }
+
+  onEditFiles() {
+    console.log('Edit files tapped');
+  }
+
   onToggleDarkMode() {
     this.isDarkMode = !this.isDarkMode;
     console.log(`Dark mode: ${this.isDarkMode ? 'enabled' : 'disabled'}`);
@@ -219,8 +322,7 @@ export class MainViewModel extends Observable {
   }
 
   onFileTap(args: any) {
-    const index = args.object.tag || 0;
-    const file = this.files[index];
+    const file = args.bindingContext;
     if (file) {
       console.log(`File tapped: ${file.name}`);
     }
