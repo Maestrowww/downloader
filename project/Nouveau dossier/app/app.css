@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Custom styles for iOS-like appearance */
+.ios-style {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* Tab styling */
+TabView {
+  background-color: #000000;
+  color: #FFFFFF;
+}
+
+TabViewItem {
+  background-color: #000000;
+}
+
+/* Custom dark theme colors */
+.bg-gray-900 {
+  background-color: #111111;
+}
+
+.bg-gray-800 {
+  background-color: #1C1C1E;
+}
+
+.bg-gray-700 {
+  background-color: #2C2C2E;
+}
+
+.bg-gray-600 {
+  background-color: #3A3A3C;
+}
+
+.text-blue-400 {
+  color: #007AFF;
+}
+
+/* Tab bar styling */
+TabView .tabview-items {
+  background-color: #1C1C1E;
+}
+
+TabView .tabview-item {
+  background-color: #1C1C1E;
+  color: #8E8E93;
+}
+
+TabView .tabview-item:selected {
+  color: #007AFF;
+}
+
+/* Hide action bar completely */
+ActionBar {
+  visibility: collapse;
+  height: 0;
+}
+
+/* Search bar styling */
+.search-bar {
+  background-color: #1C1C1E;
+  border-radius: 10;
+  margin: 10;
+}
+
+/* Custom button styles */
+.premium-button {
+  background-color: #1C1C1E;
+  color: #007AFF;
+  border-radius: 10;
+  padding: 15;
+  margin: 5;
+}
+
+.settings-item {
+  background-color: #1C1C1E;
+  padding: 15;
+  border-radius: 10;
+  margin-bottom: 10;
+}
+
+/* File item styling */
+.file-item {
+  background-color: #1C1C1E;
+  border-radius: 10;
+  padding: 15;
+  margin-bottom: 10;
+}
+
+/* Top sites grid */
+.top-site-item {
+  text-align: center;
+  margin: 5;
+}
+
+.top-site-icon {
+  width: 60;
+  height: 60;
+  border-radius: 15;
+  text-align: center;
+  vertical-align: middle;
+  font-size: 24;
+  margin-bottom: 8;
+}
+
+/* Progress bar styling */
+ProgressBar {
+  background-color: #E5E5EA;
+  color: #007AFF;
+}
+
+/* Navigation buttons */
+.nav-button {
+  background-color: transparent;
+  border-width: 0;
+  color: #FFFFFF;
+  font-size: 18;
+  padding: 8;
+  margin: 2;
+}
+
+.nav-button:disabled {
+  color: #8E8E93;
+}
+
+/* URL bar styling */
+.url-bar {
+  background-color: #2C2C2E;
+  color: #FFFFFF;
+  border-radius: 8;
+  padding: 8 12;
+  border-width: 0;
+}
+
+/* Quick action buttons */
+.quick-action {
+  background-color: #1C1C1E;
+  border-radius: 12;
+  padding: 16;
+  margin: 4;
+}
+
+/* History item styling */
+.history-item {
+  background-color: #1C1C1E;
+  border-radius: 10;
+  padding: 12;
+  margin-bottom: 8;
+}
+
+/* Responsive grid gaps */
+.gap-3 > * {
+  margin: 3;
+}
+
+/* Improved touch targets */
+Button, Label[tap] {
+  min-height: 44;
+  min-width: 44;
+}
+
+/* Loading animation */
+@keyframes pulse {
+  0% { opacity: 1; }
+  50% { opacity: 0.5; }
+  100% { opacity: 1; }
+}
+
+.loading {
+  animation: pulse 1.5s ease-in-out infinite;
+}
