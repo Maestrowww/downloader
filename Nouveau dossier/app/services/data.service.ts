@@ -15,7 +15,20 @@ export class DataService extends Observable {
 
   getDownloads(): DownloadItem[] {
     return [
-      // No downloads initially - "Aucun contenu"
+      {
+        id: '1',
+        name: 'Document_exemple.pdf',
+        size: '2.5 MB',
+        progress: 100,
+        status: 'completed'
+      },
+      {
+        id: '2',
+        name: 'Image_vacances.jpg',
+        size: '1.8 MB',
+        progress: 100,
+        status: 'completed'
+      }
     ];
   }
 
@@ -61,7 +74,58 @@ export class DataService extends Observable {
         itemCount: 20,
         type: 'folder',
         icon: '📁'
+      },
+      {
+        id: '2',
+        name: 'Documents',
+        size: '45,8 MB',
+        itemCount: 12,
+        type: 'folder',
+        icon: '📁'
+      },
+      {
+        id: '3',
+        name: 'Photos',
+        size: '1,2 GB',
+        itemCount: 156,
+        type: 'folder',
+        icon: '📁'
+      },
+      {
+        id: '4',
+        name: 'Vidéos',
+        size: '3,4 GB',
+        itemCount: 8,
+        type: 'folder',
+        icon: '📁'
+      },
+      {
+        id: '5',
+        name: 'Rapport_2024.pdf',
+        size: '2,1 MB',
+        type: 'file',
+        icon: '📄'
       }
     ];
+  }
+
+  addDownload(download: DownloadItem): void {
+    // Logique pour ajouter un téléchargement
+    console.log('Téléchargement ajouté:', download.name);
+  }
+
+  removeDownload(downloadId: string): void {
+    // Logique pour supprimer un téléchargement
+    console.log('Téléchargement supprimé:', downloadId);
+  }
+
+  addFile(file: FileItem): void {
+    // Logique pour ajouter un fichier
+    console.log('Fichier ajouté:', file.name);
+  }
+
+  removeFile(fileId: string): void {
+    // Logique pour supprimer un fichier
+    console.log('Fichier supprimé:', fileId);
   }
 }

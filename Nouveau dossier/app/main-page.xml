@@ -4,12 +4,12 @@
 
     <TabView selectedIndex="{{ selectedTabIndex }}" selectedIndexChanged="onTabSelected" class="bg-black">
         
-        <!-- Navigator Tab -->
+        <!-- Onglet Navigateur -->
         <TabViewItem title="Navigateur" class="bg-black">
             <TabViewItem.view>
                 <GridLayout rows="auto, *" class="bg-black">
                     
-                    <!-- Navigation Controls (visible when in web view) -->
+                    <!-- Contrôles de navigation (visibles en mode web) -->
                     <StackLayout row="0" orientation="horizontal" class="bg-gray-900 p-2" visibility="{{ showWebView ? 'visible' : 'collapsed' }}">
                         <Button text="←" class="text-white bg-transparent border-none text-xl mr-2" tap="onBackButtonTap" isEnabled="{{ canGoBack }}" />
                         <Button text="→" class="text-white bg-transparent border-none text-xl mr-2" tap="onForwardButtonTap" isEnabled="{{ canGoForward }}" />
@@ -19,21 +19,21 @@
                         <Button text="⭐" class="text-white bg-transparent border-none text-xl ml-2" tap="onBookmarkButtonTap" />
                     </StackLayout>
 
-                    <!-- Web View or Home Screen -->
+                    <!-- Vue Web ou Écran d'accueil -->
                     <StackLayout row="1" class="bg-black">
                         
-                        <!-- Web View (when navigating) -->
+                        <!-- Vue Web (lors de la navigation) -->
                         <StackLayout visibility="{{ showWebView ? 'visible' : 'collapsed' }}" class="bg-white flex-1">
-                            <!-- Progress Bar -->
+                            <!-- Barre de progression -->
                             <ProgressBar value="{{ browserState.progress }}" maxValue="1" class="bg-blue-400 h-1" visibility="{{ isLoading ? 'visible' : 'collapsed' }}" />
                             
-                            <!-- Simulated Web Content -->
+                            <!-- Contenu Web simulé -->
                             <ScrollView class="flex-1">
                                 <StackLayout class="p-4">
                                     <Label text="{{ pageTitle }}" class="text-black text-2xl font-bold mb-4" />
                                     <Label text="{{ currentUrl }}" class="text-blue-600 text-sm mb-4" textWrap="true" />
                                     
-                                    <!-- Simulated web content based on URL -->
+                                    <!-- Contenu simulé basé sur l'URL -->
                                     <StackLayout visibility="{{ isGoogleSearch ? 'visible' : 'collapsed' }}">
                                         <Label text="Résultats de recherche Google" class="text-gray-800 text-lg font-semibold mb-4" />
                                         <StackLayout class="mb-4 p-3 bg-gray-100 rounded-lg">
@@ -103,15 +103,15 @@
                             </ScrollView>
                         </StackLayout>
 
-                        <!-- Home Screen (default view) -->
+                        <!-- Écran d'accueil (vue par défaut) -->
                         <ScrollView visibility="{{ showWebView ? 'collapsed' : 'visible' }}" class="bg-black">
                             <StackLayout class="p-4">
-                                <!-- Search Bar -->
+                                <!-- Barre de recherche -->
                                 <StackLayout class="bg-gray-800 rounded-lg p-3 mb-6" tap="onSearchBarTap">
                                     <TextField text="{{ searchText }}" hint="Rechercher ou saisir une URL" class="text-white bg-transparent border-none" returnKeyType="search" returnPress="onSearchSubmit" />
                                 </StackLayout>
 
-                                <!-- Top Sites -->
+                                <!-- Sites favoris -->
                                 <StackLayout class="mb-6">
                                     <StackLayout orientation="horizontal" class="mb-4">
                                         <Label text="Sites favoris" class="text-white text-2xl font-bold flex-1" />
@@ -138,7 +138,7 @@
                                     </GridLayout>
                                 </StackLayout>
 
-                                <!-- Recent History -->
+                                <!-- Historique récent -->
                                 <StackLayout class="mb-6" visibility="{{ hasHistory ? 'visible' : 'collapsed' }}">
                                     <Label text="Récemment visité" class="text-white text-xl font-bold mb-4" />
                                     <Repeater items="{{ recentHistory }}">
@@ -156,7 +156,7 @@
                                     </Repeater>
                                 </StackLayout>
 
-                                <!-- Quick Actions -->
+                                <!-- Actions rapides -->
                                 <StackLayout class="mb-6">
                                     <Label text="Actions rapides" class="text-white text-xl font-bold mb-4" />
                                     <GridLayout columns="*, *" rows="auto, auto" class="gap-3">
@@ -185,11 +185,11 @@
             </TabViewItem.view>
         </TabViewItem>
 
-        <!-- Downloads Tab -->
+        <!-- Onglet Téléchargements -->
         <TabViewItem title="Téléchargements" class="bg-black">
             <TabViewItem.view>
                 <StackLayout class="bg-black">
-                    <!-- Header -->
+                    <!-- En-tête -->
                     <StackLayout class="p-4">
                         <StackLayout orientation="horizontal" class="mb-4">
                             <Label text="➕" class="text-blue-400 text-2xl mr-4" tap="onAddDownload" />
@@ -197,20 +197,20 @@
                             <Label text="Modifier" class="text-blue-400 text-lg" tap="onEditDownloads" />
                         </StackLayout>
 
-                        <!-- Search Bar -->
+                        <!-- Barre de recherche -->
                         <StackLayout class="bg-gray-800 rounded-lg p-3 mb-6">
                             <TextField hint="Chercher dans les fichiers téléchargés" class="text-white bg-transparent border-none" />
                         </StackLayout>
                     </StackLayout>
 
-                    <!-- Empty State -->
+                    <!-- État vide -->
                     <StackLayout class="flex-1 justify-center items-center p-8" visibility="{{ hasDownloads ? 'collapsed' : 'visible' }}">
                         <Label text="📥" class="text-6xl mb-4" />
                         <Label text="Aucun téléchargement" class="text-white text-xl text-center mb-2" />
                         <Label text="Les fichiers téléchargés apparaîtront ici" class="text-gray-400 text-sm text-center" />
                     </StackLayout>
 
-                    <!-- Downloads List (when there are downloads) -->
+                    <!-- Liste des téléchargements -->
                     <ScrollView visibility="{{ hasDownloads ? 'visible' : 'collapsed' }}">
                         <StackLayout class="p-4">
                             <Repeater items="{{ downloads }}">
@@ -222,8 +222,10 @@
                                                 <Label text="{{ name }}" class="text-white text-base font-semibold mb-1" />
                                                 <Label text="{{ size }}" class="text-gray-400 text-sm" />
                                                 <ProgressBar value="{{ progress }}" maxValue="100" class="mt-2" visibility="{{ status === 'downloading' ? 'visible' : 'collapsed' }}" />
+                                                <Label text="{{ status === 'completed' ? 'Terminé' : progress + '%' }}" class="text-gray-400 text-xs mt-1" />
                                             </StackLayout>
-                                            <Label text="•••" class="text-gray-400 text-lg" />
+                                            <Label text="🗑️" class="text-red-400 text-lg" tap="onDeleteDownload" visibility="{{ isEditingDownloads ? 'visible' : 'collapsed' }}" />
+                                            <Label text="•••" class="text-gray-400 text-lg" visibility="{{ isEditingDownloads ? 'collapsed' : 'visible' }}" />
                                         </StackLayout>
                                     </StackLayout>
                                 </Repeater.itemTemplate>
@@ -234,31 +236,31 @@
             </TabViewItem.view>
         </TabViewItem>
 
-        <!-- Files Tab -->
+        <!-- Onglet Fichiers -->
         <TabViewItem title="Fichiers" class="bg-black">
             <TabViewItem.view>
                 <StackLayout class="bg-black">
-                    <!-- Header -->
+                    <!-- En-tête -->
                     <StackLayout class="p-4">
                         <StackLayout orientation="horizontal" class="mb-4">
                             <Label text="Fichiers" class="text-white text-3xl font-bold flex-1" />
                             <Label text="Modifier" class="text-blue-400 text-lg" tap="onEditFiles" />
                         </StackLayout>
 
-                        <!-- Search Bar -->
+                        <!-- Barre de recherche -->
                         <StackLayout class="bg-gray-800 rounded-lg p-3 mb-4">
                             <TextField hint="Chercher dans ce dossier" class="text-white bg-transparent border-none" />
                         </StackLayout>
 
-                        <!-- Action Buttons -->
+                        <!-- Boutons d'action -->
                         <StackLayout orientation="horizontal" class="mb-4">
-                            <Label text="➕" class="text-blue-400 text-2xl mr-4" tap="onAddFile" />
-                            <Label text="📁➕" class="text-blue-400 text-2xl mr-4" tap="onAddFolder" />
+                            <Label text="➕📄" class="text-blue-400 text-2xl mr-4" tap="onAddFile" />
+                            <Label text="➕📁" class="text-blue-400 text-2xl mr-4" tap="onAddFolder" />
                             <Label text="Nom ⌄" class="text-blue-400 text-base flex-1 text-right" tap="onSortFiles" />
                         </StackLayout>
                     </StackLayout>
 
-                    <!-- Files List -->
+                    <!-- Liste des fichiers -->
                     <ScrollView>
                         <StackLayout class="px-4">
                             <Repeater items="{{ files }}">
@@ -268,9 +270,10 @@
                                             <Label text="{{ icon }}" class="text-4xl mr-4 bg-gray-600 rounded-lg p-2" />
                                             <StackLayout class="flex-1">
                                                 <Label text="{{ name }}" class="text-white text-lg font-semibold mb-1" />
-                                                <Label text="{{ size }}{{ itemCount ? ' - ' + itemCount + ' items' : '' }}" class="text-gray-400 text-sm" />
+                                                <Label text="{{ size }}{{ itemCount ? ' - ' + itemCount + ' éléments' : '' }}" class="text-gray-400 text-sm" />
                                             </StackLayout>
-                                            <Label text="•••" class="text-gray-400 text-lg" />
+                                            <Label text="🗑️" class="text-red-400 text-lg" tap="onDeleteFile" visibility="{{ isEditingFiles ? 'visible' : 'collapsed' }}" />
+                                            <Label text="•••" class="text-gray-400 text-lg" visibility="{{ isEditingFiles ? 'collapsed' : 'visible' }}" />
                                         </StackLayout>
                                     </StackLayout>
                                 </Repeater.itemTemplate>
@@ -283,29 +286,29 @@
             </TabViewItem.view>
         </TabViewItem>
 
-        <!-- More Tab -->
+        <!-- Onglet Plus -->
         <TabViewItem title="Plus" class="bg-black">
             <TabViewItem.view>
                 <ScrollView class="bg-black">
                     <StackLayout class="p-4">
-                        <!-- Header -->
+                        <!-- En-tête -->
                         <StackLayout orientation="horizontal" class="mb-6">
                             <Label text="Plus" class="text-white text-3xl font-bold flex-1 text-center" />
-                            <Label text="Modifier" class="text-blue-400 text-lg" />
                         </StackLayout>
 
-                        <!-- Premium Section -->
+                        <!-- Section Premium -->
                         <StackLayout class="mb-6">
                             <Label text="PREMIUM" class="text-gray-400 text-sm mb-3 font-semibold" />
                             <StackLayout class="bg-gray-800 rounded-lg p-4 mb-4" tap="onRemoveAds">
                                 <StackLayout orientation="horizontal">
+                                    <Label text="💎" class="text-yellow-400 text-lg mr-3" />
                                     <Label text="Supprimer les publicités" class="text-blue-400 text-lg flex-1" />
                                     <Label text=">" class="text-gray-400 text-lg" />
                                 </StackLayout>
                             </StackLayout>
                         </StackLayout>
 
-                        <!-- Actions Section -->
+                        <!-- Section Actions -->
                         <StackLayout class="bg-gray-800 rounded-lg mb-6">
                             <StackLayout class="p-4 border-b border-gray-700" tap="onSendEmail">
                                 <StackLayout orientation="horizontal">
@@ -327,7 +330,7 @@
                             </StackLayout>
                         </StackLayout>
 
-                        <!-- Appearance Section -->
+                        <!-- Section Apparence -->
                         <StackLayout>
                             <Label text="APPARENCE" class="text-gray-400 text-sm mb-3 font-semibold" />
                             <StackLayout class="bg-gray-800 rounded-lg p-4">

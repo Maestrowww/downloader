@@ -1,7 +1,9 @@
-import { Observable } from '@nativescript/core';
+import { Observable, alert, confirm } from '@nativescript/core';
 import { DataService } from '../services/data.service';
 import { BrowserService } from '../services/browser.service';
 import { BrowserState, HistoryItem } from '../models/browser-state';
+import { DownloadItem } from '../models/download-item';
+import { FileItem } from '../models/file-item';
 
 export class MainViewModel extends Observable {
   private _selectedTabIndex: number = 0;
@@ -9,6 +11,11 @@ export class MainViewModel extends Observable {
   private _searchText: string = '';
   private _showWebView: boolean = false;
   private _currentUrl: string = '';
+  private _downloads: DownloadItem[] = [];
+  private _files: FileItem[] = [];
+  private _isEditingDownloads: boolean = false;
+  private _isEditingFiles: boolean = false;
+  private _sortBy: string = 'name';
   private dataService: DataService;
   private browserService: BrowserService;
 
@@ -16,6 +23,10 @@ export class MainViewModel extends Observable {
     super();
     this.dataService = DataService.getInstance();
     this.browserService = BrowserService.getInstance();
+    
+    // Initialiser les données
+    this._downloads = this.dataService.getDownloads();
+    this._files = this.dataService.getFiles();
     
     // Écouter les changements d'état du navigateur
     this.browserService.on('propertyChange', (args: any) => {
@@ -96,20 +107,20 @@ export class MainViewModel extends Observable {
     return this._isDarkMode ? 'transparent' : '#007AFF';
   }
 
-  get downloads() {
-    return this.dataService.getDownloads();
+  get downloads(): DownloadItem[] {
+    return this._downloads;
   }
 
   get topSites() {
     return this.dataService.getTopSites();
   }
 
-  get files() {
-    return this.dataService.getFiles();
+  get files(): FileItem[] {
+    return this._files;
   }
 
   get hasDownloads(): boolean {
-    return this.downloads.length > 0;
+    return this._downloads.length > 0;
   }
 
   get hasHistory(): boolean {
@@ -117,7 +128,7 @@ export class MainViewModel extends Observable {
   }
 
   get recentHistory(): HistoryItem[] {
-    return this.browserService.history.slice(-5).reverse(); // Last 5 items, most recent first
+    return this.browserService.history.slice(-5).reverse();
   }
 
   get freeSpace(): string {
@@ -125,8 +136,16 @@ export class MainViewModel extends Observable {
   }
 
   get itemCount(): string {
-    const count = this.files.length;
-    return `${count} item${count !== 1 ? 's' : ''}`;
+    const count = this._files.length;
+    return `${count} élément${count !== 1 ? 's' : ''}`;
+  }
+
+  get isEditingDownloads(): boolean {
+    return this._isEditingDownloads;
+  }
+
+  get isEditingFiles(): boolean {
+    return this._isEditingFiles;
   }
 
   // Propriétés du navigateur
@@ -150,7 +169,7 @@ export class MainViewModel extends Observable {
     return this.browserService.currentState.isLoading;
   }
 
-  // Content visibility properties
+  // Propriétés de visibilité du contenu
   get isGoogleSearch(): boolean {
     const url = this.currentUrl.toLowerCase();
     return url.includes('google.com/search') || url.includes('google.com') && this.searchText;
@@ -180,17 +199,16 @@ export class MainViewModel extends Observable {
     this.notifyPropertyChange('isGenericSite', this.isGenericSite);
   }
 
-  // Méthodes d'événements
+  // Méthodes d'événements - Navigateur
   onTabSelected(args: any) {
     this.selectedTabIndex = args.newIndex;
     if (args.newIndex === 0) {
-      // Retour à l'onglet navigateur
       this.showWebView = false;
     }
   }
 
   onSearchBarTap() {
-    console.log('Search bar tapped');
+    console.log('Barre de recherche touchée');
   }
 
   onSearchSubmit() {
@@ -211,7 +229,7 @@ export class MainViewModel extends Observable {
     const index = parseInt(args.object.tag) || 0;
     const site = this.topSites[index];
     if (site) {
-      console.log(`Navigating to: ${site.name} - ${site.url}`);
+      console.log(`Navigation vers: ${site.name} - ${site.url}`);
       this.browserService.navigateToTopSite(site);
       this.showWebView = true;
     }
@@ -243,88 +261,266 @@ export class MainViewModel extends Observable {
     this.browserService.refresh();
   }
 
-  onShareButtonTap() {
-    console.log('Share button tapped');
-    // Implémenter le partage
+  async onShareButtonTap() {
+    await alert({
+      title: "Partager",
+      message: `Partager: ${this.currentUrl}`,
+      okButtonText: "OK"
+    });
   }
 
-  onBookmarkButtonTap() {
-    console.log('Bookmark button tapped');
-    // Implémenter les favoris
+  async onBookmarkButtonTap() {
+    await alert({
+      title: "Favori ajouté",
+      message: `${this.pageTitle} a été ajouté aux favoris`,
+      okButtonText: "OK"
+    });
   }
 
-  // Quick actions
-  onBookmarksAction() {
-    console.log('Bookmarks action tapped');
+  // Actions rapides
+  async onBookmarksAction() {
+    await alert({
+      title: "Favoris",
+      message: "Affichage des favoris...",
+      okButtonText: "OK"
+    });
   }
 
-  onHistoryAction() {
-    console.log('History action tapped');
+  async onHistoryAction() {
+    const historyCount = this.browserService.history.length;
+    await alert({
+      title: "Historique",
+      message: `Vous avez ${historyCount} page${historyCount !== 1 ? 's' : ''} dans votre historique`,
+      okButtonText: "OK"
+    });
   }
 
-  onPrivateBrowsingAction() {
-    console.log('Private browsing action tapped');
+  async onPrivateBrowsingAction() {
+    await alert({
+      title: "Navigation privée",
+      message: "Mode navigation privée activé",
+      okButtonText: "OK"
+    });
   }
 
-  onSettingsAction() {
-    console.log('Settings action tapped');
+  async onSettingsAction() {
+    await alert({
+      title: "Paramètres",
+      message: "Ouverture des paramètres du navigateur...",
+      okButtonText: "OK"
+    });
   }
 
-  onEditTopSites() {
-    console.log('Edit top sites tapped');
+  async onEditTopSites() {
+    await alert({
+      title: "Modifier les sites",
+      message: "Modification des sites favoris...",
+      okButtonText: "OK"
+    });
   }
 
-  // Downloads actions
-  onAddDownload() {
-    console.log('Add download tapped');
+  // Actions Téléchargements
+  async onAddDownload() {
+    const newDownload: DownloadItem = {
+      id: Date.now().toString(),
+      name: `Fichier_${this._downloads.length + 1}.pdf`,
+      size: `${Math.floor(Math.random() * 50 + 1)} MB`,
+      progress: 0,
+      status: 'downloading'
+    };
+
+    this._downloads.push(newDownload);
+    this.notifyPropertyChange('downloads', this._downloads);
+    this.notifyPropertyChange('hasDownloads', this.hasDownloads);
+
+    // Simuler le téléchargement
+    this.simulateDownload(newDownload);
+
+    await alert({
+      title: "Téléchargement démarré",
+      message: `${newDownload.name} est en cours de téléchargement`,
+      okButtonText: "OK"
+    });
+  }
+
+  private simulateDownload(download: DownloadItem) {
+    const interval = setInterval(() => {
+      download.progress += Math.random() * 15 + 5;
+      if (download.progress >= 100) {
+        download.progress = 100;
+        download.status = 'completed';
+        clearInterval(interval);
+      }
+      this.notifyPropertyChange('downloads', this._downloads);
+    }, 500);
   }
 
   onEditDownloads() {
-    console.log('Edit downloads tapped');
+    this._isEditingDownloads = !this._isEditingDownloads;
+    this.notifyPropertyChange('isEditingDownloads', this._isEditingDownloads);
   }
 
-  // Files actions
-  onAddFile() {
-    console.log('Add file tapped');
+  async onDeleteDownload(args: any) {
+    const download = args.bindingContext as DownloadItem;
+    const result = await confirm({
+      title: "Supprimer le téléchargement",
+      message: `Voulez-vous supprimer ${download.name} ?`,
+      okButtonText: "Supprimer",
+      cancelButtonText: "Annuler"
+    });
+
+    if (result) {
+      const index = this._downloads.findIndex(d => d.id === download.id);
+      if (index > -1) {
+        this._downloads.splice(index, 1);
+        this.notifyPropertyChange('downloads', this._downloads);
+        this.notifyPropertyChange('hasDownloads', this.hasDownloads);
+      }
+    }
   }
 
-  onAddFolder() {
-    console.log('Add folder tapped');
+  // Actions Fichiers
+  async onAddFile() {
+    const fileName = `Document_${this._files.length + 1}.txt`;
+    const newFile: FileItem = {
+      id: Date.now().toString(),
+      name: fileName,
+      size: `${Math.floor(Math.random() * 10 + 1)} KB`,
+      type: 'file',
+      icon: '📄'
+    };
+
+    this._files.push(newFile);
+    this.notifyPropertyChange('files', this._files);
+    this.notifyPropertyChange('itemCount', this.itemCount);
+
+    await alert({
+      title: "Fichier créé",
+      message: `${fileName} a été créé`,
+      okButtonText: "OK"
+    });
   }
 
-  onSortFiles() {
-    console.log('Sort files tapped');
+  async onAddFolder() {
+    const folderName = `Dossier_${this._files.filter(f => f.type === 'folder').length + 1}`;
+    const newFolder: FileItem = {
+      id: Date.now().toString(),
+      name: folderName,
+      size: '0 KB',
+      itemCount: 0,
+      type: 'folder',
+      icon: '📁'
+    };
+
+    this._files.push(newFolder);
+    this.notifyPropertyChange('files', this._files);
+    this.notifyPropertyChange('itemCount', this.itemCount);
+
+    await alert({
+      title: "Dossier créé",
+      message: `${folderName} a été créé`,
+      okButtonText: "OK"
+    });
+  }
+
+  async onSortFiles() {
+    const options = ["Nom", "Taille", "Date"];
+    // Simulation du tri (dans une vraie app, on utiliserait un ActionSheet)
+    this._sortBy = this._sortBy === 'name' ? 'size' : 'name';
+    
+    if (this._sortBy === 'name') {
+      this._files.sort((a, b) => a.name.localeCompare(b.name));
+    } else {
+      this._files.sort((a, b) => parseInt(a.size) - parseInt(b.size));
+    }
+    
+    this.notifyPropertyChange('files', this._files);
+    
+    await alert({
+      title: "Tri appliqué",
+      message: `Fichiers triés par ${this._sortBy === 'name' ? 'nom' : 'taille'}`,
+      okButtonText: "OK"
+    });
   }
 
   onEditFiles() {
-    console.log('Edit files tapped');
+    this._isEditingFiles = !this._isEditingFiles;
+    this.notifyPropertyChange('isEditingFiles', this._isEditingFiles);
   }
 
+  async onFileTap(args: any) {
+    const file = args.bindingContext as FileItem;
+    if (file) {
+      if (file.type === 'folder') {
+        await alert({
+          title: "Dossier",
+          message: `Ouverture du dossier: ${file.name}`,
+          okButtonText: "OK"
+        });
+      } else {
+        await alert({
+          title: "Fichier",
+          message: `Ouverture du fichier: ${file.name}`,
+          okButtonText: "OK"
+        });
+      }
+    }
+  }
+
+  async onDeleteFile(args: any) {
+    const file = args.bindingContext as FileItem;
+    const result = await confirm({
+      title: "Supprimer",
+      message: `Voulez-vous supprimer ${file.name} ?`,
+      okButtonText: "Supprimer",
+      cancelButtonText: "Annuler"
+    });
+
+    if (result) {
+      const index = this._files.findIndex(f => f.id === file.id);
+      if (index > -1) {
+        this._files.splice(index, 1);
+        this.notifyPropertyChange('files', this._files);
+        this.notifyPropertyChange('itemCount', this.itemCount);
+      }
+    }
+  }
+
+  // Actions Plus
   onToggleDarkMode() {
     this.isDarkMode = !this.isDarkMode;
-    console.log(`Dark mode: ${this.isDarkMode ? 'enabled' : 'disabled'}`);
+    console.log(`Mode sombre: ${this.isDarkMode ? 'activé' : 'désactivé'}`);
   }
 
-  onRemoveAds() {
-    console.log('Remove ads tapped');
+  async onRemoveAds() {
+    await alert({
+      title: "Version Premium",
+      message: "Mise à niveau vers la version premium pour supprimer les publicités",
+      okButtonText: "OK"
+    });
   }
 
-  onSendEmail() {
-    console.log('Send email to developer tapped');
+  async onSendEmail() {
+    await alert({
+      title: "Contacter le développeur",
+      message: "Ouverture de l'application mail...",
+      okButtonText: "OK"
+    });
   }
 
-  onShareWithFriend() {
-    console.log('Share with friend tapped');
+  async onShareWithFriend() {
+    await alert({
+      title: "Partager l'application",
+      message: "Partage de l'application avec vos amis...",
+      okButtonText: "OK"
+    });
   }
 
-  onWatchAd() {
-    console.log('Watch ad tapped');
-  }
-
-  onFileTap(args: any) {
-    const file = args.bindingContext;
-    if (file) {
-      console.log(`File tapped: ${file.name}`);
-    }
+  async onWatchAd() {
+    await alert({
+      title: "Publicité",
+      message: "Lecture de la publicité en cours...",
+      okButtonText: "OK"
+    });
   }
 }
